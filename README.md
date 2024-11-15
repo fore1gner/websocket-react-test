@@ -23,11 +23,11 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 ## Websocket Server
 For activating Websocket Server:
+1.
 ```
-[npm run start-server]
-# and open
-[control.html]
-``` 
+npm run start-server
+```
+2. open [control.html]
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
