@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remote Slot Machine Control</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        button { font-size: 16px; margin: 10px; padding: 10px 20px; }
+        input { padding: 8px; margin: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Remote Control for Slot Machine</h1>
+
+    <div>
+        <h3>Add Balance</h3>
+        <input type="number" id="amount" placeholder="Amount">
+        <button onclick="addBalance()">Add Balance</button>
+    </div>
+
+    <div>
+        <h3>Spin the Slot Machine</h3>
+        <button onclick="spin()">Spin</button>
+    </div>
+
+    <div id="game-status">
+        <!-- Game state information will be displayed here -->
+    </div>
+
+    <script>
+        // Connect to the WebSocket server
+        const ws = new WebSocket('ws://localhost:8080'); // Ensure this matches the server's WebSocket URL
+
+        ws.onopen = () => console.log('Connected to WebSocket server');
+
+        // Handle messages from the WebSocket server
+        ws.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+
+            // Display game status updates if sent from the server
+            if (message.type === 'status') {
+                const statusDiv = document.getElementById('game-status');
+                statusDiv.innerHTML = `
+                    <h3>Game Status</h3>
+                    <p>Balance: ${message.balance} coins</p>
+                    <p>Reels: ${message.reels.join(' | ')}</p>
+                `;
+            }
+        };
+
+        ws.onclose = () => console.log('Disconnected from WebSocket server');
+
+        // Function to send a spin command to the WebSocket server
+        function spin() {
+            ws.send(JSON.stringify({ action: 'spin' }));
+            console.log('Sent spin command');
+        }
+
+        // Function to send an add balance command to the WebSocket server
+        function addBalance() {
+            const amountInput = document.getElementById('amount');
+            const amount = parseInt(amountInput.value);
+            if (isNaN(amount) || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            ws.send(JSON.stringify({ action: 'addBalance', amount }));
+            console.log(`Sent addBalance command with amount: ${amount}`);
+            amountInput.value = ''; // Clear the input field after sending
+        }
+    </script>
+</body>
+</html>
